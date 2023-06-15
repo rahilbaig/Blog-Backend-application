@@ -1,0 +1,5 @@
+package com.rahil.blog.controller;
+
+public class CommentController {
+
+}

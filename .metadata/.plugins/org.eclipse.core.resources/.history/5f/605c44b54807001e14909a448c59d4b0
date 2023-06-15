@@ -1,0 +1,5 @@
+package com.rahil.blog.payload;
+
+public class CommentDto {
+
+}

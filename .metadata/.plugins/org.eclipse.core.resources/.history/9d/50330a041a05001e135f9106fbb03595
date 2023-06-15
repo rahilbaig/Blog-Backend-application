@@ -1,0 +1,23 @@
+package com.rahil.blog.payload;
+
+import java.util.List;
+
+import com.rahil.blog.entity.Post;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+
+@AllArgsConstructor
+@Getter
+@Setter
+public class PostResponse {
+
+	private List<Post> content;
+	private int pagenumber;
+	private int pageSize;
+	private int totalElements;
+	private int totalPages;
+	private boolean lastPages;
+	
+}

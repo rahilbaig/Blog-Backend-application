@@ -1,0 +1,136 @@
+package com.rahil.blog.service.impl;
+
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.modelmapper.ModelMapper;
+import org.modelmapper.internal.bytebuddy.asm.Advice.OffsetMapping.Sort;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import com.rahil.blog.entity.Category;
+import com.rahil.blog.entity.Post;
+import com.rahil.blog.entity.User;
+import com.rahil.blog.exceptions.ResourceNotFoundException;
+import com.rahil.blog.payload.PostDto;
+import com.rahil.blog.payload.PostResponse;
+import com.rahil.blog.repository.CategoryRepo;
+import com.rahil.blog.repository.PostRrepo;
+import com.rahil.blog.repository.UserRepo;
+import com.rahil.blog.service.Postservice;
+
+@Service
+public class postServiceImpl implements Postservice{
+
+	@Autowired
+	private PostRrepo postRrepo;
+	
+	@Autowired
+	ModelMapper modelMapper;
+	
+	
+	@Autowired
+	private UserRepo userRepo;
+	
+	@Autowired
+	private CategoryRepo categoryRepo;
+	
+	@Override
+	public PostDto createPost(PostDto dto,Integer userId,Integer categoryId) {
+		
+		User user=userRepo.findById(userId).orElseThrow(()->new ResourceNotFoundException("user", "user Id", userId));
+		
+		Category category=categoryRepo.findById(categoryId).orElseThrow(()-> new ResourceNotFoundException("category", "category id", categoryId));
+		
+		Post post=this.modelMapper.map(dto, Post.class);
+		post.setAddDate(new Date());
+		post.setUser(user);
+		post.setCategory(category);
+		
+		Post newPost=this.postRrepo.save(post);
+		
+		return this.modelMapper.map(newPost, PostDto.class);
+	}
+
+	@Override
+	public PostDto updatePost(PostDto dto, Integer id) {
+		Post post=this.postRrepo.findById(id).orElseThrow(()-> new ResourceNotFoundException("Post", "Post id", id));
+		post.setTitle(dto.getTitle());
+		post.setContent(dto.getContent());
+		post.setImageName(dto.getImageName());
+		Post post2=this.postRrepo.save(post);
+		PostDto dto2=this.modelMapper.map(post2, PostDto.class);
+		return dto2;
+	}
+
+	@Override
+	public void deletePost(Integer id) {
+		Post post=this.postRrepo.findById(id).orElseThrow(()-> new ResourceNotFoundException("post", "Post id", id));
+		this.postRrepo.delete(post);
+	}
+
+	@Override
+	public PostDto getPostById(Integer id) {
+		Post post=this.postRrepo.findById(id).orElseThrow(()->new ResourceNotFoundException("post", "post is", id));
+		PostDto dto=this.modelMapper.map(post, PostDto.class);
+		return dto;
+	}
+
+	@Override
+	public PostResponse getAllPost(Integer pageNumber,Integer pageSize,String sortBy,String sortDir) {
+		
+		org.springframework.data.domain.Sort sort=null;
+		
+		if(sortDir.equalsIgnoreCase("asc")) {
+			sort=org.springframework.data.domain.Sort.by(sortBy).ascending();
+		}
+		if(sortDir.equalsIgnoreCase("desc")) {
+			sort=org.springframework.data.domain.Sort.by(sortBy).descending();
+		}
+		Pageable p=PageRequest.of(pageNumber, pageSize,sort);
+		Page<Post> pagepost= this.postRrepo.findAll(p);
+		
+		List<Post> posts=pagepost.getContent();
+		
+		List<PostDto> dtos=posts.stream().map(post->this.modelMapper.map(post, PostDto.class)).collect(Collectors.toList());
+		PostResponse postResponse=new PostResponse();
+		
+		postResponse.setContent(dtos);
+		postResponse.setPagenumber(pagepost.getNumber());
+		postResponse.setPageSize(pagepost.getSize());
+		postResponse.setTotalElements(pagepost.getTotalElements());
+		postResponse.setTotalPages(pagepost.getTotalPages());
+		postResponse.setLastPages(pagepost.isLast());
+		
+		return postResponse;
+	}
+	
+
+	@Override
+	public List<PostDto> getPostByCategory(Integer categoryId) {
+		Category category=this.categoryRepo.findById(categoryId).orElseThrow(()->new ResourceNotFoundException("categor", "category id", categoryId));
+	    List<Post> posts=this.postRrepo.findByCategory(category);
+		List<PostDto> dtos= posts.stream().map(post->this.modelMapper.map(post, PostDto.class)).collect(Collectors.toList());
+		return dtos;
+	}
+
+	@Override
+	public List<PostDto> getPostByUser(Integer userId) {
+		User user=userRepo.findById(userId).orElseThrow(()->new ResourceNotFoundException("user", "user id", userId));
+		List<Post> posts=this.postRrepo.findByUser(user);
+		List<PostDto> dtos=posts.stream().map(post->this.modelMapper.map(post, PostDto.class)).collect(Collectors.toList());
+		return dtos;
+	}
+
+	@Override
+	public List<PostDto> SearchPosts(String keyword) {
+		List<Post> posts= this.postRrepo.findByTitleContaining("%"+keyword+"%");
+		List<PostDto> dtos=posts.stream().map((post)->this.modelMapper.map(post, PostDto.class)).collect(Collectors.toList());
+		return dtos;
+	}
+
+}

@@ -1,0 +1,7 @@
+package com.rahil.blog.service.impl;
+
+import com.rahil.blog.service.FileService;
+
+public class FileServiceImpl implements FileService {
+
+}

@@ -1,0 +1,25 @@
+package com.rahil.blog.payload;
+
+import com.rahil.blog.entity.Post;
+
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+public class CommentDto {
+
+	private int id;
+	
+	private String content;
+
+	@Override
+	public String toString() {
+		return "CommentDto [content=" + content + "]";
+	}
+	
+	
+
+}

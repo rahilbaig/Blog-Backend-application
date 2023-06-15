@@ -1,0 +1,19 @@
+package com.rahil.blog.repository;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.rahil.blog.entity.Category;
+import com.rahil.blog.entity.Post;
+import com.rahil.blog.entity.User;
+
+public interface PostRrepo extends JpaRepository<Post, Integer>{
+
+	List<Post> findByUser(User user);
+	
+	List<Post> findByCategory(Category category);
+	
+	List<Post> findByTitleContaining(String title);
+	
+}

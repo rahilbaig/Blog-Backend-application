@@ -1,0 +1,30 @@
+package com.rahil.blog.service.impl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.rahil.blog.payload.CommentDto;
+import com.rahil.blog.repository.CommentRepo;
+import com.rahil.blog.repository.PostRrepo;
+import com.rahil.blog.service.CommentService;
+
+public class CommentServiceImpl implements CommentService {
+
+	@Autowired
+	PostRrepo postRrepo;
+	
+	@Autowired
+	CommentRepo commentRepo;
+	
+	@Override
+	public CommentDto createComment(CommentDto commentDto, Integer postId) {
+		
+		return null;
+	}
+
+	@Override
+	public void deleteComment(Integer id) {
+		// TODO Auto-generated method stub
+		
+	}
+
+}
